@@ -1,0 +1,10 @@
+.\obj\mpu6050_api.o: ..\MPU6050\MPU6050_api.c
+.\obj\mpu6050_api.o: ..\MPU6050\MPU6050_api.h
+.\obj\mpu6050_api.o: ..\MPU6050\MPU6050.h
+.\obj\mpu6050_api.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\mpu6050_api.o: ..\MPU6050\AHRSLib.h
+.\obj\mpu6050_api.o: ..\MPU6050\Sensors.h
+.\obj\mpu6050_api.o: ..\MPU6050\Def.h
+.\obj\mpu6050_api.o: C:\Keil_v5\ARM\ARMCC\bin\..\include\stdbool.h
+.\obj\mpu6050_api.o: ..\MPU6050\Timer_Ctrl.h
+.\obj\mpu6050_api.o: ..\config.h

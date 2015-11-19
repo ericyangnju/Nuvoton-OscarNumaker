@@ -1,0 +1,34 @@
+---- GAS_EN Matches (6 in 2 files) ----
+User_gpio.c (gpio):	[GAS_EN]				= { PA, BIT15, 15 },
+User_gpio.c (gpio):	GPIO_SetMode(platform_gpio_pins[GAS_EN].port, platform_gpio_pins[GAS_EN].pin_number,  GPIO_MODE_OUTPUT);
+User_gpio.c (gpio):	GPIO_SetPinOutHigh(platform_gpio_pins[GAS_EN].port, platform_gpio_pins[GAS_EN].pin_number);
+User_gpio.h (gpio):	GAS_EN,
+---- UART_Write Matches (25 in 6 files) ----
+Main.c:uint32_t UART_Write_Wecan(UART_T* uart,char *pu8TxBuf, uint32_t u32WriteBytes)
+Main.c:	UART_Write_Wecan(UART0, Text, 49);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c (mpu6050):	UART_Write(UART0, Text, 49);
+Main.c (mpu6050):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker _test2_i2c_irq):	UART_Write(UART0, Text, 49);
+Main.c (mpu6050\oscar-numaker _test2_i2c_irq):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker _test2_i2c_irq):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker _test2_i2c_irq):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker _test2_i2c_irq):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker_waitreadym):	UART_Write(UART0, Text, 49);
+Main.c (mpu6050\oscar-numaker_waitreadym):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker_waitreadym):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker_waitreadym):					UART_Write(UART0, Text_ACK, 4);
+Main.c (mpu6050\oscar-numaker_waitreadym):					UART_Write(UART0, Text_ACK, 4);
+Uart.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+Uart.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):#define UART_WRITE(uart, u8Data)    (uart->DAT = (u8Data))
+Uart.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+---- SYS_GPA_MFP_PA8MFP_UART_TX Matches (2 in 2 files) ----
+Main.c:	SYS->GPA_MFP  = (SYS->GPA_MFP & (~SYS_GPA_MFP_PA8MFP_Msk) ) | SYS_GPA_MFP_PA8MFP_UART_TX;
+Sys.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):#define SYS_GPA_MFP_PA8MFP_UART_TX     (0x1UL<<SYS_GPA_MFP_PA8MFP_Pos)           /*!< GPA_MFP PA8 setting for UART_TX   \hideinitializer */
