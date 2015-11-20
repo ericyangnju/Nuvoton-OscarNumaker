@@ -80,7 +80,6 @@ PB->DOUT &= ~(1 << 0);
 	nvtMillisecondTick();
 PB->DOUT |= (1 << 0);
 }
-
 void TMR0_IRQHandler(void)
 {
   static int FC_Last;
@@ -103,7 +102,6 @@ PB->DOUT &= ~(1 << 0);
 	nvtMillisecondTick();
 PB->DOUT |= (1 << 0);	
 }
-
 void IncFrameCount(int inc)
 {
 	frame_counter+=inc;

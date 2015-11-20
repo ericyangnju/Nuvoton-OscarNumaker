@@ -16,6 +16,7 @@
 //#include "Framework.h"
 //#include "Keypad.h"
 #include "./GPIO/user_gpio.h"
+#include "config.h"   //ericyang 20151119 
 extern const platform_gpio_t platform_gpio_pins[];
 extern const platform_pwm_t platform_pwm_peripherals[] ;
 extern volatile uint8_t KEY1_Flag;

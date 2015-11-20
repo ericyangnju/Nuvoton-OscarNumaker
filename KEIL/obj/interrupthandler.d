@@ -29,3 +29,4 @@
 .\obj\interrupthandler.o: ..\..\..\Library\StdDriver\inc\timer.h
 .\obj\interrupthandler.o: ..\..\..\Library\StdDriver\inc\uart.h
 .\obj\interrupthandler.o: ..\..\..\Library\StdDriver\inc\wdt.h
+.\obj\interrupthandler.o: ..\config.h

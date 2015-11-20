@@ -13,41 +13,15 @@
 #include "isd9100.h"
 #include "./GPIO/user_gpio.h"
 #include "config.h"
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-#include "App.h"
-#include "Framework.h"
-//#include "Keypad.h"
-#include "SPIFlash.h"
-//#include "ConfigSysClk.h"
-#include "MicSpk.h"
-// SPI flash handler.
-S_SPIFLASH_HANDLER g_sSpiFlash;
-// Application control.
-volatile UINT8 g_u8AppCtrl;
-// Application handler.
-S_APP g_sApp;
-extern void App_Initiate(void);
-extern BOOL App_ProcessPlay(void);
-extern BOOL App_StopPlay(void);
-extern BOOL App_ProcessRec(void);
-extern BOOL App_StopRec(void);
-extern BOOL App_StartRec(void);
-extern BOOL App_StartPlay(void);
-extern void App_PowerDown(void);
-#endif
 extern const platform_gpio_t platform_gpio_pins[];
 extern const platform_pwm_t platform_pwm_peripherals[] ;
-
 
 #ifdef DHT11_ENABLE
 //#include "DHT11.h"
 #endif
 #ifdef MPU6050_ENABLE
 #include "./MPU6050/MPU6050_api.h"
-//#include "./MPU6050/config.h"
-
 int16_t iEuler[3];
-
 #endif
 #ifdef OLED_ENABLE
 #include "./OLED/LY096BG30.h"
@@ -55,30 +29,10 @@ int16_t iEuler[3];
 #ifdef HDC1000_ENABLE
 #include "./HDC1000/HDC1000.h"
 #endif
-
 #ifdef ADCSENSOR_ENABLE
-#if 1
 #define PGA_GAIN    -600  //default
 #define ADC_SAMPLE_RATE  (16000)  //default
-#else
-#define CH          0
-#define PDMA        PDMA0
-//#define PGA_GAIN    0  //default
-#define PGA_GAIN    -600  //default
-
-#define ADC_SAMPLE_RATE  (16000)  //default
-#define FRAME_SZIE       (8)
-#define BUFFER_LENGTH    (FRAME_SZIE*2)
-
-__align(4) int16_t i16Buffer[BUFFER_LENGTH];
-uint16_t DPWMModFreqDiv[8] = {228, 156, 76, 52, 780, 524, 396, 268}; //Modulation Division
-volatile uint8_t u8CmpMatch;
 #endif
-
-#endif
-
-
-//volatile uint16_t Humidity,Temp;
 
 #ifdef NUVOTON_BLE_WIFI_ENABLE
 #define RXBUFSIZE  4
@@ -159,81 +113,6 @@ uint32_t UART_Write_Wecan(UART_T* uart,char *pu8TxBuf, uint32_t u32WriteBytes)
  */
 #define UART_SET_RX_FIFO_INTTRGLV(uart, u32TriggerLevel)   (((uart)->FIFO  = ((uart)->FIFO  &  ~UART_FIFO_RFITL_Msk) | (u32TriggerLevel))
 
-
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-UINT8 SPIFlash_Initiate(void)
-{ 
-	UINT16 ui16Temp;
-	UINT32 ui32Temp;
-	UINT32 u32Count;
-
-	// SPI0: GPA1=SSB00, GPA2=SCLK0, GPA3=MISO0, GPA4=MOSI0 
-	SYS->GPA_MFP  = 
-		(SYS->GPA_MFP & (~(SYS_GPA_MFP_PA0MFP_Msk|SYS_GPA_MFP_PA1MFP_Msk|SYS_GPA_MFP_PA2MFP_Msk|SYS_GPA_MFP_PA3MFP_Msk)) )
-		| (SYS_GPA_MFP_PA0MFP_SPI_MOSI0|SYS_GPA_MFP_PA1MFP_SPI_SCLK|SYS_GPA_MFP_PA2MFP_SPI_SSB0|SYS_GPA_MFP_PA3MFP_SPI_MISO0);	
-	
-	// Reset IP module
-	CLK_EnableModuleClock(SPI0_MODULE);
-	SYS_ResetModule(SPI0_RST);
-	SPIFlash_Open(SPI0, SPI_SS0, SPI0_CLOCK, &g_sSpiFlash );
-
-	// Make SPI flash leave power down mode if some where or some time had made it entring power down mode
-	SPIFlash_PowerDown(&g_sSpiFlash, FALSE);
-	
-	// Check SPI flash is ready for accessing
-	u32Count = ui32Temp = 0;
-	while(u32Count!=100)
-	{
-		SPIFlash_Read(&g_sSpiFlash, 0, (PUINT8) &ui16Temp, 2);
-		if ( ui32Temp != (UINT32)ui16Temp )
-		{
-			ui32Temp = (UINT32)ui16Temp;
-			u32Count = 0;
-		}
-		else
-			u32Count++;
-	}
-
-	// The following code can be remove to save code if the flash size is not necessary for this application
-	SPIFlash_GetChipInfo(&g_sSpiFlash);
-	if (g_sSpiFlash.u32FlashSize == 0)
-		return 0;
-	
-	// The above code can be remove to save code if the flash size is not necessary for this application
-	return 1;
-}
-#endif
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-void Record_KeypadHandler(UINT32 u32Param)
-{
-	if ( g_u8AppCtrl&(APPCTRL_PLAY|APPCTRL_PLAY_STOP) )
-		return;
-	
-	if ( (g_u8AppCtrl&APPCTRL_RECORD) ==0 )
-		App_StartRec();
-	else
-		App_StopRec();			
-}
-
-void Playback_KeypadHandler(UINT32 u32Param)
-{		
-	if ( g_u8AppCtrl&APPCTRL_RECORD )
-	   return;
-	
-	if ( (g_u8AppCtrl&APPCTRL_PLAY) == 0 )
-		App_StartPlay();
-	else
-		App_StopPlay();
-}
-
-void PowerDown_KeypadHandler(UINT32 u32Param)
-{
-	App_PowerDown();
-}
-
-#endif
-
-//#ifdef BT_ENABLE
 void UART0_IRQHandler(void)
 {
 	uint32_t u32IntSts= UART0->INTSTS;
@@ -254,14 +133,10 @@ void UART0_IRQHandler(void)
 	#else
 		u8count = UART_Read(UART0, GLOBAL_BUF+real_rx_count, 256);
 		real_rx_count += u8count;
-	#ifdef DEBUG_BT_WIFI_ENABLE
-		printf("%d\n",real_rx_count);
-	#endif
 	#endif
 
 	}
 }
-//#endif
 void SYS_Init(void)
 {
 	/*---------------------------------------------------------------------------------------------------------*/
@@ -359,21 +234,6 @@ void Init_PWM0( const platform_pwm_t* pwm, uint32_t frequency, uint32_t duty_cyc
 	/* Enable PWM-Timer X Start/Run */
 	PWM_Start(PWM0, 1 << pwm->out_channel);
 }
-#if 0 //def BT_ENABLE
-void Init_Bluetooth(void)
-{
-	UART_Open(UART0,115200);	// enable UART1 at 9600 baudrate
-	#ifdef NUVOTON_BLE_WIFI_ENABLE//ericyang 20151118 test polling not use interrupt
-	UART_SET_RX_FIFO_INTTRGLV(UART0, UART_FIFO_RFITL_4BYTES));
-	#else
-	UART_SET_RX_FIFO_INTTRGLV(UART0, UART_FIFO_RFITL_1BYTE));
-	#endif
-	//UART_ENABLE_INT(UART0, UART_INTEN_RDAIEN_Msk);
-	UART0->INTEN |= UART_INTEN_RDAIEN_Msk;
-	UART0->FIFO |= UART_FIFO_RXRST_Msk;
-	NVIC_EnableIRQ(UART0_IRQn);	
-}
-#endif
 uint16_t transfer(uint16_t input)
 {
 	if(input > 0x7FFF)
@@ -434,6 +294,62 @@ void Send_Data(void)
 	Text[48] = DIS_Value;
 
 	UART_Write_Wecan(UART0, Text, 49);
+}
+#else
+void Send_Data(void)
+{
+	//char tmpString[16];
+	char sendbuffer[128];
+
+	#ifdef MPU6050_ENABLE
+	int16_t R, P, Y;
+	uint16_t iGyroX,iGyroY,iGyroZ;
+	#endif
+
+	#ifdef MPU6050_ENABLE
+	R = transfer(iEuler[0]);
+	P = transfer(iEuler[1]);
+	Y = transfer(iEuler[2]);
+
+// Transfer Data formate for Android APP
+	iGyroX = transfer(rawGYRO[0]);
+	iGyroY = transfer(rawGYRO[1]);
+	iGyroZ = transfer(rawGYRO[2]);
+	#endif
+	memset(sendbuffer,0,sizeof(sendbuffer));
+		
+	sprintf(sendbuffer,"L0+\nT:%d C  H:%d%% \nR: %x P: %x Y: %x \nGyroX: %x\nGyroY: %x\nGyroZ: %x\nLight : %x \nGas  : %x \nIR   : %x\n",
+		HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8,R,P,Y,iGyroX,iGyroY,iGyroZ,
+	LightValue,GasValue,IRValue);
+
+	#if 0// not use, take too many seconds, the system will down
+	#ifdef HUMITURESENSOR_ENABLE
+	memset(tmpString,0,sizeof(tmpString));
+	sprintf(tmpString,"T:%d C  H:%d%% \n",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
+	strcat(sendbuffer,tmpString);
+	#endif
+	#ifdef MPU6050_ENABLE
+	memset(tmpString,0,sizeof(tmpString));
+	sprintf(tmpString,"R: %x P: %x Y: %x \nGyroX: %x\nGyroY: %x\nGyroZ: %x\n",R,P,Y,iGyroX,iGyroY,iGyroZ);
+	strcat(sendbuffer,tmpString);
+	#endif
+	#ifdef LIGHTSENSOR_ENABLE
+	memset(tmpString,0,sizeof(tmpString));
+	sprintf(tmpString,"Light : %x \n",LightValue);
+	strcat(sendbuffer,tmpString);
+	#endif
+	#ifdef GASSENSOR_ENABLE
+	memset(tmpString,0,sizeof(tmpString));
+	sprintf(tmpString,"Gas  : %x \n",GasValue);
+	strcat(sendbuffer,tmpString);
+	#endif
+	#ifdef IRSENSOR_ENABLE
+	memset(tmpString,0,sizeof(tmpString));
+	sprintf(tmpString,"IR   : %x\n",IRValue);
+	strcat(sendbuffer,tmpString);
+	#endif
+	#endif
+	UART_Write_Wecan(UART0, sendbuffer, strlen(sendbuffer));
 }
 #endif
 void UART_Init(void)
@@ -499,59 +415,6 @@ void ADC_Init(void)
 	ADC_MUTEOFF_PGA(ADC, ADC_SIGCTL_MUTE_PGA);
 	
 }
-void DPWM_Init(void)
-{
-	/* Reset IP */
-	CLK_EnableModuleClock(DPWM_MODULE);
-	SYS_ResetModule(DPWM_RST);
-	
-	DPWM_Open();	 
-	DPWM_SetSampleRate(ADC_SAMPLE_RATE); //Set sample rate
-	DPWM_SET_MODFREQUENCY(DPWM,DPWM_CTL_MODUFRQ0);//Set FREQ_0
-	
-	/* Set GPG multi-function pins for SPK+ and SPK- */
-	SYS->GPA_MFP  = (SYS->GPA_MFP & (~SYS_GPA_MFP_PA12MFP_Msk) ) | SYS_GPA_MFP_PA12MFP_SPKP;
-	SYS->GPA_MFP  = (SYS->GPA_MFP & (~SYS_GPA_MFP_PA13MFP_Msk) ) | SYS_GPA_MFP_PA13MFP_SPKM;
-}
-#if 0
-void PDMA_Init(void)
-{
-	volatile int32_t i = 10;
-	
-	/* Reset IP */
-	CLK_EnableModuleClock(PDMA_MODULE);
-	SYS_ResetModule(PDMA_RST);
-
-	
-	PDMA_GCR->GLOCTL |= (1 << CH) << PDMA_GLOCTL_CHCKEN_Pos; //PDMA Controller Channel Clock Enable
-			
-	PDMA->DSCT_CTL |= PDMA_DSCT_CTL_SWRST_Msk;   //Writing 1 to this bit will reset the internal state machine and pointers
-	PDMA->DSCT_CTL |= PDMA_DSCT_CTL_CHEN_Msk;    //Setting this bit to 1 enables PDMA assigned channel operation 
-	while(i--);                                  //Need a delay to allow reset
-	
-	PDMA_GCR->SVCSEL &= 0xfffff0ff;  //DMA channel is connected to ADC peripheral transmit request.
-	PDMA_GCR->SVCSEL |= CH << PDMA_SVCSEL_DPWMTXSEL_Pos;  //DMA channel is connected to DPWM peripheral transmit request.
-	
-	PDMA->DSCT_ENDSA = (uint32_t)&ADC->DAT;    //Set source address
-	PDMA->DSCT_ENDDA = (uint32_t)i16Buffer;    //Set destination address
-	
-	PDMA->DSCT_CTL |= 0x2 << PDMA_DSCT_CTL_SASEL_Pos;    //Transfer Source address is fixed.
-	PDMA->DSCT_CTL |= 0x3 << PDMA_DSCT_CTL_DASEL_Pos;    //Transfer Destination Address is wrapped.
-	PDMA->DSCT_CTL |= 0x2 << PDMA_DSCT_CTL_TXWIDTH_Pos;  //One half-word (16 bits) is transferred for every PDMA operation
-	PDMA->DSCT_CTL |= 0x1 << PDMA_DSCT_CTL_MODESEL_Pos;  //Memory to IP mode (APB-to-SRAM).
-	PDMA->DSCT_CTL |= 0x5 << PDMA_DSCT_CTL_WAINTSEL_Pos; //Wrap Interrupt: Both half and end buffer.
-	
-	PDMA->TXBCCH = BUFFER_LENGTH*2;          // Audio array total length, unit: sample.
-	
-	PDMA->INTENCH = 0x1 << PDMA_INTENCH_WAINTEN_Pos;;   //Wraparound Interrupt Enable
-	
-	ADC_ENABLE_PDMA(ADC);
-	
-	NVIC_ClearPendingIRQ(PDMA_IRQn);
-	NVIC_EnableIRQ(PDMA_IRQn);
-	PDMA->DSCT_CTL |= PDMA_DSCT_CTL_TXEN_Msk;    //Start PDMA transfer
-}
-#endif
 #endif
 #ifdef ADCSENSOR_ENABLE
 uint32_t ADC_SingleModeTest(void)
@@ -587,17 +450,13 @@ uint32_t ADC_SingleModeTest(void)
 int main(void)
 {	
 	char tmpString[16];
-	#ifdef WEBEE_BLE_ENABLE
-	char sendbuffer[128];
-	int16_t R, P, Y;
-	uint16_t iGyroX,iGyroY,iGyroZ;
-	#endif
-	//uint16_t tmp0,tmp1=0;
-
-	//uint32_t	pwm_frequency = 1000; // HZ
-	//uint32_t  pwm_duty_cycle = 30;
-#ifdef HUMITURESENSOR_ENABLE
+	uint8_t checkSensorDataFlag = 0;
+#if 0 //ndef NUVOTON_BLE_WIFI_ENABLE
+	static uint32_t systickcounter = 0;
+#endif
 	uint32_t u32temp=0;
+
+#ifdef HUMITURESENSOR_ENABLE
 	uint8_t u8tmp0 = 0;
 	uint8_t u8tmp1 = 0;
 
@@ -613,15 +472,6 @@ int main(void)
 
 	/* Init System, IP clock and multi-function I/O */
 	SYS_Init(); //In the end of SYS_Init() will issue SYS_LockReg() to lock protected register. If user want to write protected register, please issue SYS_UnlockReg() to unlock protected register.
-
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-#if 0
-	if (! SPIFlash_Initiate())		// Initiate SPI interface and checking flows for accessing SPI flash.
-		while(1); 					// loop here for easy debug
-#else
-	SPIFlash_Initiate();
-#endif
-#endif
 	UART_Init();
 
     //printf("Wecan Chen Oscar Numaker 2015.09.01\r\n");
@@ -638,9 +488,9 @@ int main(void)
 	/* Open I2C0 and set clock to 100k */
 	I2C_Open(I2C0, 400000);
 #ifdef I2C_IRQ
-I2C_EnableInt(I2C0);
-NVIC_EnableIRQ(I2C0_IRQn);
-NVIC_SetPriority(I2C0_IRQn, 0);
+	I2C_EnableInt(I2C0);
+	NVIC_EnableIRQ(I2C0_IRQn);
+	NVIC_SetPriority(I2C0_IRQn, 0);
 #endif
 #ifdef MPU6050_ENABLE
 	Init_MPU6050();
@@ -654,29 +504,6 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 //	print_Line(2, "Eric Yang      ");
 //	print_Line(3, "0.96 OLED 128x64");
 #endif
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-	PDMA_INITIATE();				// Initiate PDMA.
-//PDMA_Init();
-			// After initiation, the PDMA engine clock NVIC are enabled.
-			// Use PdmaCtrl_Open() to set PDMA service channel for desired IP.
-			// Use PdmaCtrl_Start() to trigger PDMA operation.
-			// Reference "PdmaCtrl.h" for PDMA related APIs.
-			// PDMA_INITIATE() must be call before SPK_INITIATE() and MIC_INITIATE(), if open MIC or speaker.
-
-	SPK_INITIATE();					// Initiate speaker including pop-sound canceling.
-//	DPWM_Init();
-			// After initiation, the APU is paused.
-			// Use SPK_Resume(0) to start APU operation.
-			// Reference "MicSpk.h" for speaker related APIs.
-
-	MIC_INITIATE();					// Initiate MIC.
-			// After initiation, the ADC is paused.
-			// Use ADC_Resume() to start ADC operation.
-			// Reference "MicSpk.h" for MIC related APIs.
-
-											
-	App_Initiate();					// Initiate application for audio decode.
-#endif
 
 #ifdef HDC1000_ENABLE
 	Init_HDC1000();
@@ -686,9 +513,6 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 #endif
 #ifdef MPU6050_ENABLE
 	Init_AHRS();
-#endif
-#if 0 //def BT_ENABLE
-	Init_Bluetooth();
 #endif
 #ifdef MPU6050_ENABLE
 	//Calibrate Gyro
@@ -700,28 +524,29 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 	GPIO_SetPinOutLow(platform_gpio_pins[LED_SENB_B].port, platform_gpio_pins[LED_SENB_B].pin_number);
 	GPIO_SetPinOutLow(platform_gpio_pins[LED_SENB_R].port, platform_gpio_pins[LED_SENB_R].pin_number);
 	GPIO_SetPinOutLow(platform_gpio_pins[LED_SENB_G].port, platform_gpio_pins[LED_SENB_G].pin_number);
-
+#ifndef NUVOTON_BLE_WIFI_ENABLE
+	memset(GLOBAL_BUF,0x0,sizeof(GLOBAL_BUF));
+#endif
 	while(1)
 	{
-
-		//ERICYANG FOR TEST BREAK POINT ONLY
-		i=real_rx_count;
-		i=real_rx_count;
-		i=real_rx_count;
-
-#ifdef AUDIO_REC_PLAYBACK_ENABLE
-		if ( g_u8AppCtrl&APPCTRL_RECORD )
+#if 0//ndef NUVOTON_BLE_WIFI_ENABLE
+		checkSensorDataFlag = 0;
+		if(real_rx_count==0)
 		{
-			if ( App_ProcessRec() == FALSE )
-				App_StopRec();
+			u32temp = getTickCount(); 
+			u32temp >>= 10;
+			if(systickcounter != u32temp)
+			{
+				systickcounter = u32temp;
+				//if(systickcounter%3 == 0)  // set 3s to refresh sensor data
+				{
+					checkSensorDataFlag  = 1;
+			//	 printf("10s int ready\n");
+				}
+			}
 		}
-		else if ( g_u8AppCtrl&APPCTRL_PLAY )
-		{
-			if ( App_ProcessPlay() == FALSE )
-				App_StopPlay();
-		}
-		
-
+#else
+		checkSensorDataFlag = 1;
 #endif
 		if(KEY1_Flag)
 		{
@@ -748,124 +573,102 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 			print_Line(3, String);
 			#endif
 			//printf("KEY2 Press %d\r\n",Count);
-		#ifdef AUDIO_REC_PLAYBACK_ENABLE
-			Playback_KeypadHandler(0);
-		#endif
 		}
 		else if(KEY3_Flag)
 		{
 			KEY3_Flag = 0;
 			#ifdef OLED_ENABLE
-			#if 0//def GASSENSOR_ENABLE
-			sprintf(String,"%x",GasValue);
-			#else
 			sprintf(String,"KEY0 Pressed");
-			#ifdef WEBEE_BLE_ENABLE  //ericyang 20151112
-			#ifdef MPU6050_ENABLE
-			memset(sendbuffer,0,sizeof(sendbuffer));
-			R = transfer(iEuler[0]);
-			P = transfer(iEuler[1]);
-			Y = transfer(iEuler[2]);
-		
-		// Transfer Data formate for Android APP
-			iGyroX = transfer(rawGYRO[0]);
-			iGyroY = transfer(rawGYRO[1]);
-			iGyroZ = transfer(rawGYRO[2]);
-
-			sprintf(sendbuffer,"DP+T:%d C  H:%d%% \nR: %x P: %x Y: %x \nGyroX: %x\nGyroY: %x\nGyroZ: %x\nLight : %x \nGas  : %x \nIR   : %x\n",
-				HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8,R,P,Y,iGyroX,iGyroY,iGyroZ,
-			LightValue,GasValue,IRValue);
-			UART_Write_Wecan(UART0, sendbuffer, strlen(sendbuffer));
-			#endif
-//			Send_Data();
-			#endif
-			#endif
 			print_Line(3, String);
 			#endif
-#if 0//ericyang test webee BLE
-				sprintf(Text_ACK,"@AKS");
-				UART_Write_Wecan(UART0, Text_ACK, 4);
-#endif
-		#ifdef AUDIO_REC_PLAYBACK_ENABLE
-			Record_KeypadHandler(0);
-		#endif
+
+			#if 0
+			sprintf(sendbuffer,"L0+T:%d C  H:%d%% \nR: %x P: %x Y: %x \nGyroX: %x\nGyroY: %x\nGyroZ: %x\nLight : %x \nGas  : %x \nIR   : %x\n",
+				HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8,R,P,Y,iGyroX,iGyroY,iGyroZ,
+			LightValue,GasValue,IRValue);
+			#endif
+			#ifndef NUVOTON_BLE_WIFI_ENABLE
+			Send_Data();
+			#endif
 		}
 	
-
+		if(checkSensorDataFlag)
+		{
 #ifdef IRSENSOR_ENABLE
-		ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH0_N);			
-		IRValue = ADC_SingleModeTest();
-	#ifdef DEBUG_ENABLE
-		printf("IRSensor: %x\n",IRValue);
-	#endif
+			ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH0_N);			
+			IRValue = ADC_SingleModeTest();
+		#ifdef DEBUG_ENABLE
+			printf("IRSensor: %x\n",IRValue);
+		#endif
 #endif
 #ifdef LIGHTSENSOR_ENABLE
-		ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH1_N);			
-		LightValue = ADC_SingleModeTest();
-	#ifdef DEBUG_ENABLE
-		printf("LightValue: %x\n",LightValue);
-	#endif
+			ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH1_N);			
+			LightValue = ADC_SingleModeTest();
+		#ifdef DEBUG_ENABLE
+			printf("LightValue: %x\n",LightValue);
+		#endif
 
 #endif
 #ifdef GASSENSOR_ENABLE			
-		ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH4_N);			
-		GasValue = ADC_SingleModeTest();
-	#ifdef DEBUG_ENABLE
-		printf("GasValue: %x\n",GasValue);
-	#endif
+			ADC_SetGPIOChannel(ADC_GPIO_SINGLEEND_CH4_N);			
+			GasValue = ADC_SingleModeTest();
+		#ifdef DEBUG_ENABLE
+			printf("GasValue: %x\n",GasValue);
+		#endif
 
 #endif
 #ifdef ADCSENSOR_ENABLE
-		memset(tmpString,0,sizeof(tmpString));
-		sprintf(tmpString,"Light:%x ",LightValue);
-		print_Line(2, tmpString);
-		memset(tmpString,0,sizeof(tmpString));
-		sprintf(tmpString,"Gas:%x IR:%x",GasValue,IRValue);
-		print_Line(3, tmpString);
-
-
+			memset(tmpString,0,sizeof(tmpString));
+			sprintf(tmpString,"Light:%x ",LightValue);
+			print_Line(2, tmpString);
+			memset(tmpString,0,sizeof(tmpString));
+			sprintf(tmpString,"Gas:%x IR:%x",GasValue,IRValue);
+			print_Line(3, tmpString);
 #endif
+		
+		
 		//ADC_START_CONV(ADC);
 #ifdef MPU6050_ENABLE
-		rawACC[0] = Read_MPU6050_AccX();
-		rawACC[1] = Read_MPU6050_AccY();
-		rawACC[2] = Read_MPU6050_AccZ();
-	
-		rawGYRO[0] = Read_MPU6050_GyroX();
-		rawGYRO[1] = Read_MPU6050_GyroY();
-		rawGYRO[2] = Read_MPU6050_GyroZ();
-		nvtInputSensorRawACC(rawACC);
-		nvtInputSensorRawGYRO(rawGYRO);
-			
-		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
-		nvtGetEulerRPY(Euler);
-		for (i=0 ; i<3 ; i++)
-			iEuler[i] = (int) (Euler[i]);	
+			rawACC[0] = Read_MPU6050_AccX();
+			rawACC[1] = Read_MPU6050_AccY();
+			rawACC[2] = Read_MPU6050_AccZ();
+		
+			rawGYRO[0] = Read_MPU6050_GyroX();
+			rawGYRO[1] = Read_MPU6050_GyroY();
+			rawGYRO[2] = Read_MPU6050_GyroZ();
+			nvtInputSensorRawACC(rawACC);
+			nvtInputSensorRawGYRO(rawGYRO);
+				
+			nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
+			nvtGetEulerRPY(Euler);
+			for (i=0 ; i<3 ; i++)
+				iEuler[i] = (int) (Euler[i]);	
 
-//printf("iEuler[]=%x %x %x %x \n",iEuler[0],iEuler[1],iEuler[2],iEuler[3]);s				
+	//printf("iEuler[]=%x %x %x %x \n",iEuler[0],iEuler[1],iEuler[2],iEuler[3]);s				
 #endif
 
 #ifdef HDC1000_ENABLE
-	//	tmp0 = Read_HDC1000_Manufacturer_ID();
-		u32temp = Read_HDC1000_Temperature();
-		u32temp = (( u32temp*16500)>>16)-4000;
-		u8tmp0 = u32temp/100;
-		u8tmp1 = u32temp%100;
-		HUMITURESENSOR_Data[1] = u8tmp0<<8|u8tmp1;
-		u32temp = Read_HDC1000_Humidity();
-		u32temp = (u32temp*10000)>>16;
-		u8tmp0 = u32temp/100;
-		u8tmp1 = u32temp%100;
-		HUMITURESENSOR_Data[0] = u8tmp0<<8|u8tmp1;
+		//	tmp0 = Read_HDC1000_Manufacturer_ID();
+			u32temp = Read_HDC1000_Temperature();
+			u32temp = (( u32temp*16500)>>16)-4000;
+			u8tmp0 = u32temp/100;
+			u8tmp1 = u32temp%100;
+			HUMITURESENSOR_Data[1] = u8tmp0<<8|u8tmp1;
+			u32temp = Read_HDC1000_Humidity();
+			u32temp = (u32temp*10000)>>16;
+			u8tmp0 = u32temp/100;
+			u8tmp1 = u32temp%100;
+			HUMITURESENSOR_Data[0] = u8tmp0<<8|u8tmp1;
 #ifdef DEBUG_ENABLE
-		printf("tempriture is:%x  humidity is:%x \n",HUMITURESENSOR_Data[1],HUMITURESENSOR_Data[0]);
+			printf("tempriture is:%x  humidity is:%x \n",HUMITURESENSOR_Data[1],HUMITURESENSOR_Data[0]);
 #endif
 #ifdef OLED_ENABLE
-		memset(tmpString,0,sizeof(tmpString));
-		sprintf(tmpString,"T:%d C   H:%d%%  ",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
-		print_Line(1, tmpString);
+			memset(tmpString,0,sizeof(tmpString));
+			sprintf(tmpString,"T:%d C   H:%d%%  ",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
+			print_Line(1, tmpString);
 #endif
-#endif		
+#endif	
+		}
 
 #ifdef NUVOTON_BLE_WIFI_ENABLE
 		if (Flag_report) 
@@ -881,7 +684,7 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 				sprintf(Text_ACK,"@AKD");
 				UART_Write_Wecan(UART0, Text_ACK, 4);
 #ifdef DHT11_ENABLE
-					//Read_DHT11 (DHT11_Data);
+				//Read_DHT11 (DHT11_Data);
 #endif
 				Send_Data();					
 			}			
@@ -922,11 +725,20 @@ NVIC_SetPriority(I2C0_IRQn, 0);
 			Flag_report=0;
 		}
 #else
-#ifdef DEBUG_BT_WIFI_ENABLE
-	//	UART_Write( UART0, GLOBAL_BUF, real_rx_count );
-		real_rx_count = 0;
-#endif
-
+		if(real_rx_count)
+		{
+			real_rx_count = 0;
+			if (strstr((const char*)GLOBAL_BUF,"DAT"))
+			{
+				Send_Data();
+			}	
+			else
+			{
+				sprintf(tmpString,"L0+\nInvalid Cmd\n");	
+				UART_Write_Wecan(UART0,tmpString, 16);
+			}
+			memset(GLOBAL_BUF,0x0,sizeof(GLOBAL_BUF));
+		}
 #endif 	
 	}
 }
