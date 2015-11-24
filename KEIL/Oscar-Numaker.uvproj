@@ -364,7 +364,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\Library\CMSIS\Include;..\..\..\Library\Device\Nuvoton\ISD9100\Include;..\..\..\Library\StdDriver\inc;..\..\..\Library\Framework\inc;..\..\..\Library\Storage\inc;;..\..\..\Library\Audio\inc;..\</IncludePath>
+              <IncludePath>..\..\..\Library\CMSIS\Include;..\..\..\Library\Device\Nuvoton\ISD9100\Include;..\..\..\Library\StdDriver\inc;..\..\..\Library\Framework\inc;..\</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

@@ -32,3 +32,219 @@ Uart.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):uint32_t U
 ---- SYS_GPA_MFP_PA8MFP_UART_TX Matches (2 in 2 files) ----
 Main.c:	SYS->GPA_MFP  = (SYS->GPA_MFP & (~SYS_GPA_MFP_PA8MFP_Msk) ) | SYS_GPA_MFP_PA8MFP_UART_TX;
 Sys.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):#define SYS_GPA_MFP_PA8MFP_UART_TX     (0x1UL<<SYS_GPA_MFP_PA8MFP_Pos)           /*!< GPA_MFP PA8 setting for UART_TX   \hideinitializer */
+---- DEBUG_BT_WIFI_ENABLE Matches (3 in 2 files) ----
+Config.h:#define DEBUG_BT_WIFI_ENABLE //ericyang 20151116
+Main.c:	#if 0//def DEBUG_BT_WIFI_ENABLE
+Main.c:#if 1//def DEBUG_BT_WIFI_ENABLE
+---- Delay Matches (43 in 13 files) ----
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @brief  This function execute delay function.
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @param  us  Delay time. The Max value is 2^24 / CPU Clock(MHz). Ex:
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @details    Use the SysTick to generate the delay time and the UNIT is in us.
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):void CLK_SysTickDelay(uint32_t us)
+Clk.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):void CLK_SysTickDelay(uint32_t us);
+ISD9100.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\device\nuvoton\isd9100\include):     * |        |          |Processor must delay enough time before changing the coefficients or turn the BIQ on.
+ISD9100.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\device\nuvoton\isd9100\include):     * |        |          |If OSC16K is disabled, device cannot wake from DPD with SELWKTMR delay.
+Main.c:	uint32_t  u32Count, u32delayno;
+Main.c:		u32delayno = 0;
+Main.c:			u32delayno++;
+Main.c:			if( u32delayno >= 0x40000000 )
+Main.c:	while(i--);                                  //Need a delay to allow reset
+Main.c:		DelayMsec(1);;
+MPU6050.h (mpu6050):#define MPU6050_I2C_MST_DELAY_CTRL 0x67
+MPU6050_api.c (mpu6050):			DelayMsec(1);
+MPU6050_api.c (mpu6050):			DelayMsec(1);
+MPU6050_api.c (mpu6050):		DelayMsec(1);
+Rtc.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    volatile int32_t i32delay=1000;
+Rtc.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    while(i32delay--);
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @brief This API is used to create a delay loop for u32usec micro seconds
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @param[in] u32Usec Delay period in micro seconds with 10 usec every step. Valid values are between 10~1000000 (10 micro second ~ 1 second)
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @note This API overwrites the register setting of the timer used to count the delay time.
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @note This API use polling mode. So there is no need to enable interrupt for the timer module used to generate delay
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):void TIMER_Delay(TMR_T *timer, uint32_t u32Usec)
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    uint32_t u32Prescale = 0, delay = SystemCoreClock / u32Clk + 1;
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    if(u32Clk == 10000) {         // min delay is 100us if timer clock source is LIRC 10k
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    // And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):    for(; delay > 0; delay--) {
+Timer.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):void     TIMER_Delay(TMR_T *timer, uint32_t u32Usec);
+Timer_Ctrl.c (mpu6050):void Delay(uint32_t delayCnt)
+Timer_Ctrl.c (mpu6050):	while(delayCnt--) {
+Timer_Ctrl.c (mpu6050):void DelayLoop(unsigned short delay){
+Timer_Ctrl.c (mpu6050):	while(--delay);//About 200 psec per run
+Timer_Ctrl.c (mpu6050):void DelayUsec(unsigned int usec){
+Timer_Ctrl.c (mpu6050):		DelayLoop(5);
+Timer_Ctrl.c (mpu6050):void DelayMsec(unsigned short msec){
+Timer_Ctrl.h (mpu6050):void DelayLoop(unsigned short delay);
+Timer_Ctrl.h (mpu6050):void DelayUsec(unsigned int usec);
+Timer_Ctrl.h (mpu6050):void DelayMsec(unsigned short msec);
+Wdt.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  *  before WDT time-out plus reset delay reached. Or WDT generate a reset signal.
+Wdt.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):  *  before WDT time-out plus reset delay reached. Or WDT generate a reset signal.
+---- TIMER_Open Matches (4 in 4 files) ----
+Main.c:                TIMER_Open( TIMER0, TIMER_PERIODIC_MODE, 1);
+MPU6050_api.c (mpu6050):TIMER_Open( TIMER0, TIMER_PERIODIC_MODE, 1000);
+Timer.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):uint32_t TIMER_Open(TMR_T *timer, uint32_t u32Mode, uint32_t u32Freq)
+Timer.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):uint32_t TIMER_Open(TMR_T *timer, uint32_t u32Mode, uint32_t u32Freq);
+---- SYSTICK Matches (20 in 6 files) ----
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @brief  This function set SysTick clock source
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @param  u32ClkSrc is SysTick clock source. Including :
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):void CLK_SetSysTickClockSrc(uint32_t u32ClkSrc)
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  * @details    Use the SysTick to generate the delay time and the UNIT is in us.
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):  *             The SysTick clock source is from HCLK, i.e the same as system core clock.
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):void CLK_SysTickDelay(uint32_t us)
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):	SysTick->LOAD = us * CyclesPerUs;
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):	SysTick->VAL  =  (0x00);
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
+Clk.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):	while((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) == 0);
+Clk.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):void CLK_SetSysTickClockSrc(uint32_t u32ClkSrc);
+Clk.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):void CLK_SysTickDelay(uint32_t us);
+Config.h:#define SYSTICK
+ISD9100.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\device\nuvoton\isd9100\include):        SysTick_IRQn              = -1,     /*!< 15 Cortex-M0 System Tick Interrupt                     */
+ISD9100.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\device\nuvoton\isd9100\include):#define __Vendor_SysTickConfig  0       /*!< Set to 1 if different SysTick Config is used         */
+ISD9100.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\device\nuvoton\isd9100\include):     * |[3:5]   |STCLKSEL  |MCU Cortex_M0 SysTick Clock Source Select
+MPU6050_api.c (mpu6050):#ifdef SYSTICK
+Timer_Ctrl.c (mpu6050):	SysTick_Config(tickPeriod);
+Timer_Ctrl.c (mpu6050):void SysTick_Handler(void)
+Timer_Ctrl.c (mpu6050):	NVIC_EnableIRQ(SysTick_IRQn);
+---- tick_counter Matches (9 in 1 files) ----
+Timer_Ctrl.c (mpu6050):volatile uint32_t tick_counter = 0;
+Timer_Ctrl.c (mpu6050):	if((tick_counter%1000)==0) {
+Timer_Ctrl.c (mpu6050):	tick_counter++;
+Timer_Ctrl.c (mpu6050):	if((tick_counter%1000)==0) {
+Timer_Ctrl.c (mpu6050):	tick_counter++;
+Timer_Ctrl.c (mpu6050):	Chronograph[Chron].currentTime = tick_counter;  
+Timer_Ctrl.c (mpu6050):	Chronograph[Chron].currentTime = Chronograph[Chron].lastTime = tick_counter;
+Timer_Ctrl.c (mpu6050):	int32_t chron_diff = (tick_counter - Chronograph[Chron].currentTime);
+Timer_Ctrl.c (mpu6050):	return tick_counter;
+---- TIMER0_INT_ENABLE Matches (4 in 3 files) ----
+Config.h:#define TIMER0_INT_ENABLE  //ericyang 20151119
+InterruptHandler.c:#ifdef TIMER0_INT_ENABLE
+InterruptHandler.c:#ifdef TIMER0_INT_ENABLE
+Main.c:#ifdef TIMER0_INT_ENABLE
+---- frame_counter Matches (7 in 1 files) ----
+Timer_Ctrl.c (mpu6050):volatile uint32_t frame_counter = 0;
+Timer_Ctrl.c (mpu6050):		freqCount=frame_counter-FC_Last;
+Timer_Ctrl.c (mpu6050):		FC_Last = frame_counter;
+Timer_Ctrl.c (mpu6050):		freqCount=frame_counter-FC_Last;
+Timer_Ctrl.c (mpu6050):		FC_Last = frame_counter;
+Timer_Ctrl.c (mpu6050):	frame_counter+=inc;
+Timer_Ctrl.c (mpu6050):	return frame_counter;
+---- AUDIO_REC_PLAYBACK_ENABLE Matches (9 in 2 files) ----
+Config.h://#define AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:		#ifdef AUDIO_REC_PLAYBACK_ENABLE
+Main.c:		#ifdef AUDIO_REC_PLAYBACK_ENABLE
+---- BT_ENABLE Matches (4 in 2 files) ----
+Config.h:#define BT_ENABLE  //ericyang 20151103
+Main.c://#ifdef BT_ENABLE
+Main.c:#if 0 //def BT_ENABLE
+Main.c:#if 0 //def BT_ENABLE
+---- UART_Write Matches (12 in 3 files) ----
+Main.c:uint32_t UART_Write_Wecan(UART_T* uart,char *pu8TxBuf, uint32_t u32WriteBytes)
+Main.c:	UART_Write_Wecan(UART0, Text, 49);
+Main.c:			UART_Write_Wecan(UART0, sendbuffer, strlen(sendbuffer));
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write_Wecan(UART0, Text_ACK, 4);
+Main.c:				UART_Write( UART0, GLOBAL_BUF, real_rx_count );
+Uart.c (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\src):uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+Uart.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):#define UART_WRITE(uart, u8Data)    (uart->DAT = (u8Data))
+Uart.h (e:\workspace\wpi\nuvoton\oscar-numaker\library\stddriver\inc):uint32_t UART_Write(UART_T* uart,uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+---- DEBUG_BT_WIFI_ENABLE Matches (2 in 2 files) ----
+Config.h://#define DEBUG_BT_WIFI_ENABLE //ericyang 20151116
+Main.c:#if 1//def DEBUG_BT_WIFI_ENABLE
+---- tmpString Matches (17 in 1 files) ----
+Main.c:	char tmpString[16];
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"Light:%x ",LightValue);
+Main.c:			print_Line(2, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"Gas:%x IR:%x",GasValue,IRValue);
+Main.c:			print_Line(3, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"T:%d C   H:%d%%  ",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
+Main.c:			print_Line(1, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			memcpy(tmpString,GLOBAL_BUF,16);
+Main.c:			print_Line(1, tmpString);
+---- DPWM_Init Matches (1 in 1 files) ----
+Main.c:void DPWM_Init(void)
+---- HUMITURESENSOR_Data Matches (13 in 1 files) ----
+Main.c:uint16_t HUMITURESENSOR_Data[2]={0x4000,0x2000};//humidity tempreture;
+Main.c:	Text[24] = (uint8_t) (HUMITURESENSOR_Data[1] >> 8 );
+Main.c:	Text[25] = (uint8_t) (HUMITURESENSOR_Data[1] & 0xFF);
+Main.c:	Text[30] = (uint8_t) (HUMITURESENSOR_Data[0] >> 8 );
+Main.c:	Text[31] = (uint8_t) (HUMITURESENSOR_Data[0] & 0xFF);
+Main.c:				HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8,R,P,Y,iGyroX,iGyroY,iGyroZ,
+Main.c:			HUMITURESENSOR_Data[1] = u8tmp0<<8|u8tmp1;
+Main.c:			HUMITURESENSOR_Data[0] = u8tmp0<<8|u8tmp1;
+Main.c:			printf("tempriture is:%x  humidity is:%x \n",HUMITURESENSOR_Data[1],HUMITURESENSOR_Data[0]);
+Main.c:			sprintf(tmpString,"T:%d C   H:%d%%  ",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
+---- WEBEE_BLE_ENABLE Matches (3 in 2 files) ----
+Config.h:#define WEBEE_BLE_ENABLE  //ericyang 20151112
+Main.c:	#ifdef WEBEE_BLE_ENABLE
+Main.c:			#ifdef WEBEE_BLE_ENABLE  //ericyang 20151112
+---- String Matches (34 in 1 files) ----
+Main.c:char String[16];
+Main.c:	char tmpString[16];
+Main.c:			sprintf(String,"%x",IRValue);
+Main.c:			sprintf(String,"KEY2 Pressed");
+Main.c:			print_Line(3, String);
+Main.c:			sprintf(String,"%x",LightValue);
+Main.c:			sprintf(String,"KEY1 Pressed");
+Main.c:			print_Line(3, String);
+Main.c:			sprintf(String,"KEY0 Pressed");
+Main.c:			print_Line(3, String);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"Light:%x ",LightValue);
+Main.c:			print_Line(2, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"Gas:%x IR:%x",GasValue,IRValue);
+Main.c:			print_Line(3, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			sprintf(tmpString,"T:%d C   H:%d%%  ",HUMITURESENSOR_Data[1]>>8,HUMITURESENSOR_Data[0]>>8);
+Main.c:			print_Line(1, tmpString);
+Main.c:			memset(tmpString,0,sizeof(tmpString));
+Main.c:			memcpy(tmpString,GLOBAL_BUF,16);
+Main.c:			print_Line(1, tmpString);
+Main.c:				memset(tmpString,0,sizeof(tmpString));
+Main.c:				memcpy(tmpString,GLOBAL_BUF+16,16);
+Main.c:				print_Line(2, tmpString);
+Main.c:				memset(tmpString,0,sizeof(tmpString));
+Main.c:				memcpy(tmpString,GLOBAL_BUF+32,16);
+Main.c:				print_Line(3, tmpString);
+---- GLOBAL_BUF Matches (3 in 1 files) ----
+Main.c:uint8_t GLOBAL_BUF[256];//ericyang 20151118
+Main.c:		u8count = UART_Read(UART0, GLOBAL_BUF+real_rx_count, 256);
+Main.c:			if (strstr((const char*)GLOBAL_BUF,"DAT"))
+---- WEBEE_BLE_ENABLE Matches (1 in 1 files) ----
+Config.h:#define WEBEE_BLE_ENABLE  //ericyang 20151112
+---- LONGSIS_WK1221_ENABLE Matches (1 in 1 files) ----
+Config.h:#define LONGSIS_WK1221_ENABLE //ericyang 20151116
+---- OLED_ENABLE Matches (7 in 2 files) ----
+Config.h:#define OLED_ENABLE //ericyang 20151104
+Main.c:#ifdef OLED_ENABLE
+Main.c:#ifdef OLED_ENABLE
+Main.c:			#ifdef OLED_ENABLE
+Main.c:			#ifdef OLED_ENABLE
+Main.c:			#ifdef OLED_ENABLE
+Main.c:#ifdef OLED_ENABLE
+---- print_Line Matches (13 in 3 files) ----
+LY096BG30.c (oled):void print_Line(uint8_t Line, char Text[])
+LY096BG30.h (oled):void print_Line(uint8_t Line, char Text[]);
+Main.c:		//print_Line(3,RX_buffer);
+Main.c:	print_Line(0, "Oscar Numaker V0");
+Main.c://	print_Line(1, "2015.11.12      ");
+Main.c://	print_Line(2, "Eric Yang      ");
+Main.c://	print_Line(3, "0.96 OLED 128x64");
+Main.c:			print_Line(3, String);
+Main.c:			print_Line(3, String);
+Main.c:			print_Line(3, String);
+Main.c:			print_Line(2, tmpString);
+Main.c:			print_Line(3, tmpString);
+Main.c:			print_Line(1, tmpString);
